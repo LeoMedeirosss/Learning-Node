@@ -10,6 +10,7 @@ const server = http.createServer((req, res) => {
         return res.end(users)
     }
 
+    
     if (method === "POST" && url === "/users") {
         users.push({
             id: 1,
