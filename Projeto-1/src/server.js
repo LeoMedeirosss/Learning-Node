@@ -2,6 +2,7 @@ import http from "node:http"
 
 const users = []
 
+//req and res are streams.
 const server = http.createServer((req, res) => {
     const { method, url} = req
 
