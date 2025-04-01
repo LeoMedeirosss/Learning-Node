@@ -1,32 +1,48 @@
-//using insomnia to test API
-import http from "node:http"
+import http from "node:http";
 
-const users = []
+const users = [];
 
-//req and res are streams.
-const server = http.createServer((req, res) => {
-    const { method, url} = req
-
-    //console.log(req.headers)
-
-    if (method === "GET" && url === "/users") {
-        return res
-        .setHeader("Content-type", "aplication/json")
-        .end(JSON.stringify(users))
+// req e res são streams.
+const server = http.createServer(async (req, res) => {
+    const { method, url } = req;
+    
+    const buffers = [];
+    
+    for await (const chunk of req) {
+        buffers.push(chunk);
     }
 
-    
+    try {
+        req.body = JSON.parse(Buffer.concat(buffers).toString());
+    } catch {
+        req.body = null;
+    }
+
+    if (method === "GET" && url === "/users") {
+        res.setHeader("Content-Type", "application/json");
+        return res.writeHead(200).end(JSON.stringify(users));
+    }
+
     if (method === "POST" && url === "/users") {
-        users.push({
-            id: 1,
-            name: "alguem",
-            email:"alguem@email.com",
-        })
+        if (!req.body || !req.body.name || !req.body.email) {
+            return res.writeHead(400).end("Bad Request: Name and email are required");
+        }
 
-        return res.writeHead(201).end()
-    }   
+        const newUser = {
+            id: users.length + 1,
+            name: req.body.name,
+            email: req.body.email,
+        };
 
-    return res.writeHead(404).end("Not Found")
-})
+        users.push(newUser);
 
-server.listen(3000)
+        res.setHeader("Content-Type", "application/json");
+        return res.writeHead(201).end(JSON.stringify(newUser));
+    }
+
+    return res.writeHead(404).end("Not Found");
+});
+
+server.listen(3000, () => {
+    console.log("Server is running on http://localhost:3000");
+});
