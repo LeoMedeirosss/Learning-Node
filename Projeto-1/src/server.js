@@ -1,25 +1,16 @@
 import http from "node:http";
+import { json } from "./middlewares/json.js";
 
 const users = [];
 
 // req e res são streams.
 const server = http.createServer(async (req, res) => {
     const { method, url } = req;
-    
-    const buffers = [];
-    
-    for await (const chunk of req) {
-        buffers.push(chunk);
-    }
 
-    try {
-        req.body = JSON.parse(Buffer.concat(buffers).toString());
-    } catch {
-        req.body = null;
-    }
+   await json(req,res)
 
     if (method === "GET" && url === "/users") {
-        res.setHeader("Content-Type", "application/json");
+        res
         return res.writeHead(200).end(JSON.stringify(users));
     }
 
@@ -36,7 +27,7 @@ const server = http.createServer(async (req, res) => {
 
         users.push(newUser);
 
-        res.setHeader("Content-Type", "application/json");
+        res
         return res.writeHead(201).end(JSON.stringify(newUser));
     }
 
