@@ -1,7 +1,8 @@
 import http from "node:http";
 import { json } from "./middlewares/json.js";
+import { Database } from "./database.js";
 
-const users = [];
+const database = new Database
 
 // req e res são streams.
 const server = http.createServer(async (req, res) => {
@@ -10,7 +11,8 @@ const server = http.createServer(async (req, res) => {
    await json(req,res)
 
     if (method === "GET" && url === "/users") {
-        res
+        const users = database.select("users")
+
         return res.writeHead(200).end(JSON.stringify(users));
     }
 
@@ -19,13 +21,13 @@ const server = http.createServer(async (req, res) => {
             return res.writeHead(400).end("Bad Request: Name and email are required");
         }
 
-        const newUser = {
-            id: users.length + 1,
-            name: req.body.name,
-            email: req.body.email,
+        const user = {
+            id: user.length + 1,
+            name,
+            email,
         };
 
-        users.push(newUser);
+        database.insert("users". user)
 
         res
         return res.writeHead(201).end(JSON.stringify(newUser));
