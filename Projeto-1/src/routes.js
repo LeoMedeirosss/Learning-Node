@@ -35,5 +35,12 @@ export const routes = [
         
             return res.writeHead(201).end(JSON.stringify(newUser));
         }
+    },
+    {
+        method: "DELETE",
+        path:"/users",
+        handler: (req,res) => {
+            
+        },
     }
 ]
